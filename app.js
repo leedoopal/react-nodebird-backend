@@ -1,11 +1,12 @@
 const express = require('express');
 const app = express();
+const postRouter = require('./routes/post');
 
 app.get('/', (req, res) => {
   res.send('hello express');
 });
 
-app.get('/api/posts', (req, res) => {
+app.get('/posts', (req, res) => {
   res.json([
     {
       id: 1,
@@ -18,9 +19,7 @@ app.get('/api/posts', (req, res) => {
   ]);
 });
 
-app.post('/api/post', (req, res) => {
-  res.json('complete');
-});
+app.use('/post', postRouter);
 
 app.listen(3065, () => {
   console.log('서버 실행 중');
