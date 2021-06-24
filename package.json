@@ -7,5 +7,12 @@
     "dev": ""
   },
   "author": "leedoopal",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.17.1"
+  },
+  "devDependencies": {
+    "eslint-config-airbnb": "^18.2.1",
+    "prettier": "^2.3.1"
+  }
 }
