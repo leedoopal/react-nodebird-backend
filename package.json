@@ -4,7 +4,7 @@
   "description": "",
   "main": "app.js",
   "scripts": {
-    "dev": ""
+    "dev": "node app"
   },
   "author": "leedoopal",
   "license": "ISC",
