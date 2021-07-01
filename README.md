@@ -4,7 +4,12 @@
 
 ### 실행 방법
 ```javascript
+// 최초 설치
 yarn install
+
+// node app으로 실행
 yarn dev -> localhost:3065
-yarn nodemon -> nodemon으로 실행
+
+// nodemon으로 실행
+yarn nodemon
 ```
