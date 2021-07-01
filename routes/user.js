@@ -23,7 +23,9 @@ router.post('/', async (req, res, next) => {
       nickname: req.body.nickname,
       password: hashedPassword,
     });
-    res.status(200).send('ok');
+    res
+      .status(201)
+      .send({ email: req.body.email, nickname: req.body.nickname });
   } catch (error) {
     console.error(error);
     next(error); // status 500
