@@ -50,7 +50,15 @@ router.post('/login', (req, res, next) => {
         console.error(loginErr);
         return next(loginErr);
       }
-      return res.json(user);
+      return res
+        .status(200)
+        .json({
+          data: {
+            id: req.user.id,
+            email: req.user.email,
+            nickname: req.user.nickname,
+          },
+        });
     });
   })(req, res, next);
 });
