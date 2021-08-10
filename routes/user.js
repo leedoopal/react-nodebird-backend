@@ -35,6 +35,47 @@ router.post('/', isNotSignedIn, async (req, res, next) => {
   }
 });
 
+router.get('/', async (req, res, next) => {
+  try {
+    if (req.user) {
+      const fullUserWithoutPasswrod = await User.findOne({
+        where: { id: req.user.id },
+        attributes: {
+          exclude: ['password'],
+        },
+        include: [
+          {
+            model: Post,
+            attributes: {
+              exclude: ['id'],
+            },
+          },
+          {
+            model: User,
+            as: 'Followings',
+            attributes: {
+              exclude: ['id'],
+            },
+          },
+          {
+            model: User,
+            as: 'Followers',
+            attributes: {
+              exclude: ['id'],
+            },
+          },
+        ],
+      });
+      return res.status(200).json(fullUserWithoutPasswrod);
+    } else {
+      return res.status(200).json({ data: null });
+    }
+  } catch (error) {
+    console.error(error);
+    next(error);
+  }
+});
+
 router.post('/login', isNotSignedIn, (req, res, next) => {
   passport.authenticate('local', (error, user, info) => {
     // server error
