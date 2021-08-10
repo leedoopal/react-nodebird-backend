@@ -24,8 +24,9 @@ passportConfig();
 
 app.use(
   cors({
-    origin: '*',
-    credentials: false,
+    origin: 'http://localhost:3000',
+    // cookie를 같이 전달하고 싶다면
+    credentials: true,
   }),
 );
 app.use(express.json());

@@ -3,7 +3,7 @@ module.exports = (sequelize, dataTypes) => {
     'Post',
     {
       content: {
-        type: dataTypes.TEXT,
+        type: dataTypes.JSON,
         allowNull: false,
       },
       /*
