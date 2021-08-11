@@ -22,7 +22,7 @@ module.exports = (sequelize, dataTypes) => {
     db.Post.belongsToMany(db.Hashtag, { through: 'PostHashtag' });
     db.Post.hasMany(db.Image);
     // as에 따라서 post.GetLikers 처럼 게시글 좋아요 누른 사람을 가져올 수 있음
-    db.Post.belongsToMany(db.User, { through: 'Like', as: 'Likers' });
+    db.Post.belongsToMany(db.User, { through: 'Like' });
     // as로 이름을 변경해주었기 때문에 RetweetId 생성
     db.Post.belongsTo(db.Post, { as: 'Retweet' });
   };

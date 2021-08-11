@@ -1,13 +1,15 @@
 const express = require('express');
+
+const { isSignedIn } = require('./middlewares');
 const { Post, Image, Comment, User } = require('../models');
 
 const router = express.Router();
 
-router.post('/', async (req, res, next) => {
+router.post('/', isSignedIn, async (req, res, next) => {
   try {
     const post = await Post.create({
       content: req.body.data,
-      UserId: req.body.data.user.id,
+      UserId: req.user.id,
     });
     const fullPost = await Post.findOne({
       where: { id: post.id },
@@ -17,9 +19,16 @@ router.post('/', async (req, res, next) => {
         },
         {
           model: Comment,
+          include: [
+            {
+              model: User, // 댓글 작성자
+              attributes: ['id', 'nickname'],
+            },
+          ],
         },
         {
           model: User,
+          attributes: ['id', 'nickname'],
         },
       ],
     });
@@ -47,7 +56,7 @@ router.post('/:postId/comment', async (req, res, next) => {
 
     const comment = await Comment.create({
       content: req.body.data,
-      PostId: req.params.postId,
+      PostId: Number(req.params.postId),
       UserId: req.user.id,
     });
     res.status(201).json(comment);

@@ -1,5 +1,5 @@
 const express = require('express');
-const { Post, Image } = require('../models');
+const { Post, Image, Comment, User } = require('../models');
 
 const router = express.Router();
 
@@ -11,6 +11,12 @@ router.get('/', async (req, res, next) => {
       include: [
         {
           model: Image,
+        },
+        {
+          model: Comment,
+        },
+        {
+          model: User,
         },
       ],
     });
