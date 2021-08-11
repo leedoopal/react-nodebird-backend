@@ -18,6 +18,9 @@ router.post('/', async (req, res, next) => {
         {
           model: Comment,
         },
+        {
+          model: User,
+        },
       ],
     });
     res.status(201).json(fullPost);

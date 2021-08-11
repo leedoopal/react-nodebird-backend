@@ -3,7 +3,7 @@ module.exports = (sequelize, dataTypes) => {
     'Comment',
     {
       content: {
-        type: dataTypes.TEXT,
+        type: dataTypes.JSON,
         allowNull: false,
       },
       // belongsTo를 생성함으로써 아래 user_id, post_id가 만들어짐
