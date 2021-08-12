@@ -59,7 +59,18 @@ router.post('/:postId/comment', async (req, res, next) => {
       PostId: Number(req.params.postId),
       UserId: req.user.id,
     });
-    res.status(201).json(comment);
+
+    const fullComment = await Comment.findOne({
+      where: { id: comment.id },
+      include: [
+        {
+          model: User,
+          attributes: ['id', 'nickname'],
+        },
+      ],
+    });
+
+    res.status(201).json(fullComment);
   } catch (err) {
     console.log(err);
     next(err);
