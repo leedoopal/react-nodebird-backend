@@ -18,13 +18,16 @@ module.exports = (sequelize, dataTypes) => {
   );
 
   Post.associate = (db) => {
-    db.Post.hasMany(db.Comment);
-    db.Post.belongsToMany(db.Hashtag, { through: 'PostHashtag' });
-    db.Post.hasMany(db.Image);
+    db.Post.hasMany(db.Comment); // post.addComments, post.getComments
+    db.Post.belongsToMany(db.Hashtag, { through: 'PostHashtag' }); // post.addHashtags
+    db.Post.hasMany(db.Image); // post.addImages, post.getImages
+
+    db.Post.belongsTo(db.User); // post.addUser, post.getUser, post.setUser
     // as에 따라서 post.GetLikers 처럼 게시글 좋아요 누른 사람을 가져올 수 있음
-    db.Post.belongsToMany(db.User, { through: 'Like' });
+    db.Post.belongsToMany(db.User, { through: 'Like', as: 'Likers' }); // post.addLikers, post.removeLikers
+
     // as로 이름을 변경해주었기 때문에 RetweetId 생성
-    db.Post.belongsTo(db.Post, { as: 'Retweet' });
+    db.Post.belongsTo(db.Post, { as: 'Retweet' }); // post.addRetweet
   };
 
   return Post;
