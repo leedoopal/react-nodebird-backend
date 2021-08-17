@@ -77,6 +77,18 @@ router.get('/:postId', async (req, res, next) => {
   }
 });
 
+router.delete('/:postId', isSignedIn, async (req, res, next) => {
+  try {
+    await Post.destroy({
+      where: { id: req.params.postId, UserId: req.user.id },
+    });
+
+    res.status(204).json({ postId: req.params.postId });
+  } catch (err) {
+    console.error(err);
+  }
+});
+
 router.post('/:postId/comment', async (req, res, next) => {
   try {
     const post = await Post.findOne({
@@ -111,7 +123,7 @@ router.post('/:postId/comment', async (req, res, next) => {
   }
 });
 
-router.post('/:postId/like', async (req, res, next) => {
+router.post('/:postId/like', isSignedIn, async (req, res, next) => {
   try {
     const post = await Post.findOne({ where: { id: req.params.postId } });
     if (!post) {
@@ -126,7 +138,7 @@ router.post('/:postId/like', async (req, res, next) => {
   }
 });
 
-router.delete('/:postId/like', async (req, res, next) => {
+router.delete('/:postId/like', isSignedIn, async (req, res, next) => {
   try {
     const post = await Post.findOne({ where: { id: req.params.postId } });
     if (!post) {
