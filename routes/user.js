@@ -54,14 +54,14 @@ router.get('/', async (req, res, next) => {
             model: User,
             as: 'Followings',
             attributes: {
-              exclude: ['id'],
+              exclude: ['password'],
             },
           },
           {
             model: User,
             as: 'Followers',
             attributes: {
-              exclude: ['id'],
+              exclude: ['password'],
             },
           },
         ],
@@ -135,6 +135,34 @@ router.patch('/nickname', isSignedIn, async (req, res, next) => {
     );
 
     res.status(200).json({ nickname: req.body.nickname });
+  } catch (err) {
+    console.err(err);
+    next(err);
+  }
+});
+
+router.patch('/:userId/follow', isSignedIn, async (req, res, next) => {
+  try {
+    const user = await User.findOne({ where: { id: req.params.userId } });
+    if (!user) {
+      res.status(403).send('존재하지 않는 유저에요');
+    }
+    await user.addFollowers(req.user.id);
+    res.status(200).json({ userId: req.params.userId });
+  } catch (err) {
+    console.err(err);
+    next(err);
+  }
+});
+
+router.delete('/:userId/follow', isSignedIn, async (req, res, next) => {
+  try {
+    const user = await User.findOne({ where: { id: req.params.userId } });
+    if (!user) {
+      res.status(403).send('존재하지 않는 유저에요');
+    }
+    await user.removeFollowers(req.user.id);
+    res.status(200).json({ userId: req.body.userId });
   } catch (err) {
     console.err(err);
     next(err);
