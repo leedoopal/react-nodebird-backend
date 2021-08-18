@@ -169,4 +169,32 @@ router.delete('/:userId/follow', isSignedIn, async (req, res, next) => {
   }
 });
 
+router.get('/followers', isSignedIn, async (req, res, next) => {
+  try {
+    const me = await User.findOne({ where: { id: req.user.id } });
+    if (!me) {
+      res.status(401).send('로그인을 해주세요');
+    }
+    const followers = await me.getFollowers();
+    res.status(200).json(followers);
+  } catch (err) {
+    console.err(err);
+    next(err);
+  }
+});
+
+router.get('/followings', isSignedIn, async (req, res, next) => {
+  try {
+    const me = await User.findOne({ where: { id: req.user.id } });
+    if (!me) {
+      res.status(401).send('로그인을 해주세요');
+    }
+    const followings = await me.getFollowings();
+    res.status(200).json(followings);
+  } catch (err) {
+    console.err(err);
+    next(err);
+  }
+});
+
 module.exports = router;
