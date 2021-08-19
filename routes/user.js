@@ -171,7 +171,12 @@ router.delete('/:userId/follow', isSignedIn, async (req, res, next) => {
 
 router.get('/followers', isSignedIn, async (req, res, next) => {
   try {
-    const me = await User.findOne({ where: { id: req.user.id } });
+    const me = await User.findOne({
+      where: { id: req.user.id },
+      attributes: {
+        exclude: ['password'],
+      },
+    });
     if (!me) {
       res.status(401).send('로그인을 해주세요');
     }
@@ -185,7 +190,12 @@ router.get('/followers', isSignedIn, async (req, res, next) => {
 
 router.get('/followings', isSignedIn, async (req, res, next) => {
   try {
-    const me = await User.findOne({ where: { id: req.user.id } });
+    const me = await User.findOne({
+      where: { id: req.user.id },
+      attributes: {
+        exclude: ['password'],
+      },
+    });
     if (!me) {
       res.status(401).send('로그인을 해주세요');
     }
