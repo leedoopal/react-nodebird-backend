@@ -169,6 +169,20 @@ router.delete('/:userId/follow', isSignedIn, async (req, res, next) => {
   }
 });
 
+router.delete('/follower/:userId', isSignedIn, async (req, res, next) => {
+  try {
+    const user = await User.findOne({ where: { id: req.params.userId } });
+    if (!user) {
+      res.status(403).send('존재하지 않는 유저에요');
+    }
+    await user.removeFollowings(req.user.id);
+    res.status(200).json({ userId: req.body.userId });
+  } catch (err) {
+    console.err(err);
+    next(err);
+  }
+});
+
 router.get('/followers', isSignedIn, async (req, res, next) => {
   try {
     const me = await User.findOne({
