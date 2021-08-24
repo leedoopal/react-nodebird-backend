@@ -15,12 +15,43 @@ try {
   fs.mkdirSync('uploads');
 }
 
-router.post('/', isSignedIn, async (req, res, next) => {
+const upload = multer({
+  storage: multer.diskStorage({
+    destination(req, file, done) {
+      done(null, 'uploads');
+    },
+    filename(req, file, done) {
+      // test.jpg
+      const ext = path.extname(file.originalname); // 확장자 추출 (.jpg)
+      const basename = path.basename(file.originalname, ext); // 이름을 꺼내옴 (test)
+      done(null, basename + new Date().getTime() + ext); // test123456789.jpg
+    },
+  }),
+  limits: { fileSize: 20 * 1024 * 1024 }, // 20MB
+});
+
+router.post('/', isSignedIn, upload.none(), async (req, res, next) => {
   try {
+    const { content, image } = req.body;
     const post = await Post.create({
-      content: req.body.data,
+      content,
       UserId: req.user.id,
     });
+
+    if (image) {
+      if (Array.isArray(image)) {
+        // 이미지를 여러장 올릴 경우: [A.png, B.png]
+        const postImages = await Promise.all(
+          image.map((path) => Image.create({ src: path })),
+        );
+        await post.addImages(postImages);
+      } else {
+        // 이미지를 한장 올릴 경우: C.png
+        const postImage = await Image.create({ src: image });
+        await post.addImages(postImage);
+      }
+    }
+
     const fullPost = await Post.findOne({
       where: { id: post.id },
       include: [
@@ -161,21 +192,6 @@ router.delete('/:postId/like', isSignedIn, async (req, res, next) => {
     console.log(err);
     next(err);
   }
-});
-
-const upload = multer({
-  storage: multer.diskStorage({
-    destination(req, file, done) {
-      done(null, 'uploads');
-    },
-    filename(req, file, done) {
-      // test.jpg
-      const ext = path.extname(file.originalname); // 확장자 추출 (.jpg)
-      const basename = path.basename(file.originalname, ext); // 이름을 꺼내옴 (test)
-      done(null, basename + new Date().getTime() + ext); // test123456789.jpg
-    },
-  }),
-  limits: { fileSize: 20 * 1024 * 1024 }, // 20MB
 });
 
 router.post(

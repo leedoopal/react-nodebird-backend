@@ -26,6 +26,10 @@ router.get('/', async (req, res, next) => {
           ],
         },
         {
+          model: User, // 게시글 작성자
+          attributes: ['id', 'nickname'],
+        },
+        {
           model: User, // 좋아요 누른 사람
           as: 'Likers',
           attributes: ['id', 'nickname'],
