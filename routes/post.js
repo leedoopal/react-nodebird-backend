@@ -4,7 +4,7 @@ const path = require('path');
 const fs = require('fs');
 
 const { isSignedIn } = require('./middlewares');
-const { Post, Image, Comment, User } = require('../models');
+const { Post, Image, Comment, User, Hashtag } = require('../models');
 
 const router = express.Router();
 
@@ -33,10 +33,23 @@ const upload = multer({
 router.post('/', isSignedIn, upload.none(), async (req, res, next) => {
   try {
     const { content, image } = req.body;
+    const hashtags = content.match(/#[^\s#]+/g);
     const post = await Post.create({
       content,
       UserId: req.user.id,
     });
+
+    if (hashtags) {
+      // findOrCreate: tag가 없다면 생성, 있다면 가져오기
+      // result = [[tag, true], [tag2, true]]
+      const result = await Promise.all(
+        hashtags.map((tag) =>
+          Hashtag.findOrCreate({ where: { name: tag.slice(1).toLowerCase() } }),
+        ),
+      );
+
+      await post.addHashtags(result.map((v) => v[0]));
+    }
 
     if (image) {
       if (Array.isArray(image)) {
@@ -66,6 +79,9 @@ router.post('/', isSignedIn, upload.none(), async (req, res, next) => {
               attributes: ['id', 'nickname'],
             },
           ],
+        },
+        {
+          model: Hashtag,
         },
         {
           model: User, // 게시글 작성자

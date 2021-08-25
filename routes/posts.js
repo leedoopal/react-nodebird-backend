@@ -1,5 +1,5 @@
 const express = require('express');
-const { Post, Image, Comment, User } = require('../models');
+const { Post, Image, Comment, User, Hashtag } = require('../models');
 
 const router = express.Router();
 
@@ -24,6 +24,9 @@ router.get('/', async (req, res, next) => {
               order: [['createdAt', 'DESC']],
             },
           ],
+        },
+        {
+          model: Hashtag,
         },
         {
           model: User, // 게시글 작성자
