@@ -4,6 +4,7 @@ module.exports = (sequelize, dataTypes) => {
     {
       content: {
         type: dataTypes.JSON,
+        // allowNull false일 경우 값이 무조건 있어야 함.
         allowNull: false,
       },
       /*

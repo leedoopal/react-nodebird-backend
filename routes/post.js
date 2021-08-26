@@ -154,7 +154,7 @@ router.post('/:postId/comment', async (req, res, next) => {
 
     // post가 존재하지 않다면
     if (!post) {
-      return res.status(403).send('존재하지 않는 게시글 입니다.');
+      return res.status(403).send({ message: '존재하지 않는 게시글 입니다.' });
     }
 
     const comment = await Comment.create({
@@ -175,7 +175,7 @@ router.post('/:postId/comment', async (req, res, next) => {
 
     res.status(201).json(fullComment);
   } catch (err) {
-    console.log(err);
+    console.error(err);
     next(err);
   }
 });
@@ -184,13 +184,13 @@ router.post('/:postId/like', isSignedIn, async (req, res, next) => {
   try {
     const post = await Post.findOne({ where: { id: req.params.postId } });
     if (!post) {
-      return res.status(403).send('게시글이 존재하지 않아요');
+      return res.status(403).send({ message: '게시글이 존재하지 않아요' });
     }
 
     await post.addLikers(req.user.id);
     res.status(201).json({ postId: post.id, userId: req.user.id });
   } catch (err) {
-    console.log(err);
+    console.error(err);
     next(err);
   }
 });
@@ -199,13 +199,13 @@ router.delete('/:postId/like', isSignedIn, async (req, res, next) => {
   try {
     const post = await Post.findOne({ where: { id: req.params.postId } });
     if (!post) {
-      return res.status(403).send('게시글이 존재하지 않아요');
+      return res.status(403).send({ message: '게시글이 존재하지 않아요' });
     }
 
     await post.removeLikers(req.user.id);
     res.status(204).json({ postId: post.id, userId: req.user.id });
   } catch (err) {
-    console.log(err);
+    console.error(err);
     next(err);
   }
 });
@@ -215,9 +215,90 @@ router.post(
   isSignedIn,
   upload.array('image'),
   async (req, res, next) => {
-    console.log(req.files);
+    console.error(req.files);
     res.json(req.files.map((v) => v.filename));
   },
 );
+
+router.post('/:postId/retweet', isSignedIn, async (req, res, next) => {
+  try {
+    const post = await Post.findOne({
+      where: { id: req.params.postId },
+      include: [
+        {
+          model: Post,
+          as: 'Retweet',
+        },
+      ],
+    });
+
+    if (!post) {
+      return res.status(403).send({ message: '게시글이 존재하지 않아요' });
+    }
+
+    // 본인 게시글을 리트윗 한 경우, 본인이 리트윗 한 게시글을 다시 리트윗 한 경우
+    if (
+      req.user.id === post.UserId ||
+      (post.Retweet && post.Retweet.UserId === req.user.id)
+    ) {
+      return res
+        .status(403)
+        .send({ message: '본인의 게시글은 리트윗 할 수 없어요' });
+    }
+
+    const retweetTargetId = post.RetweetId || post.id;
+    const exPost = await Post.findOne({
+      where: {
+        UserId: req.user.id,
+        RetweetId: retweetTargetId,
+      },
+    });
+
+    if (exPost) {
+      return res.status(403).send({ message: '이미 리트윗 한 게시글 입니다' });
+    }
+
+    const resultRetweet = await Post.create({
+      UserId: req.user.id,
+      RetweetId: retweetTargetId,
+      content: 'retweet',
+    });
+
+    const retweetWithPrevPost = await Post.findOne({
+      where: { id: resultRetweet.id },
+      include: [
+        {
+          model: Post,
+          as: 'Retweet',
+        },
+        {
+          model: User,
+          attributes: ['id', 'nickname'],
+        },
+        {
+          model: User,
+          as: 'Likers',
+          attributes: ['id'],
+        },
+        {
+          model: Image,
+        },
+        {
+          model: Comment,
+          include: [
+            {
+              model: User,
+              attributes: ['id', 'nickname'],
+            },
+          ],
+        },
+      ],
+    });
+
+    res.status(201).json(retweetWithPrevPost);
+  } catch (err) {
+    console.error(err);
+  }
+});
 
 module.exports = router;
