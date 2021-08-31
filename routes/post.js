@@ -124,6 +124,11 @@ router.get('/:postId', async (req, res, next) => {
           model: User,
           attributes: ['id', 'nickname'],
         },
+        {
+          model: User,
+          as: 'Likers',
+          attributes: ['id', 'nickname'],
+        },
       ],
     });
 
