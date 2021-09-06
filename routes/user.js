@@ -77,6 +77,48 @@ router.get('/', async (req, res, next) => {
   }
 });
 
+router.get('/followers', isSignedIn, async (req, res, next) => {
+  try {
+    const me = await User.findOne({
+      where: { id: req.user.id },
+      attributes: {
+        exclude: ['password'],
+      },
+    });
+    if (!me) {
+      res.status(401).send('로그인을 해주세요');
+    }
+    const followers = await me.getFollowers({
+      limit: Number(req.query.limit),
+    });
+    res.status(200).json(followers);
+  } catch (err) {
+    console.err(err);
+    next(err);
+  }
+});
+
+router.get('/followings', isSignedIn, async (req, res, next) => {
+  try {
+    const me = await User.findOne({
+      where: { id: req.user.id },
+      attributes: {
+        exclude: ['password'],
+      },
+    });
+    if (!me) {
+      res.status(401).send('로그인을 해주세요');
+    }
+    const followings = await me.getFollowings({
+      limit: Number(req.query.limit),
+    });
+    res.status(200).json(followings);
+  } catch (err) {
+    console.err(err);
+    next(err);
+  }
+});
+
 router.post('/login', isNotSignedIn, (req, res, next) => {
   passport.authenticate('local', (error, user, info) => {
     // server error
@@ -246,44 +288,6 @@ router.delete('/follower/:userId', isSignedIn, async (req, res, next) => {
     }
     await user.removeFollowings(req.user.id);
     res.status(200).json({ userId: req.body.userId });
-  } catch (err) {
-    console.err(err);
-    next(err);
-  }
-});
-
-router.get('/followers', isSignedIn, async (req, res, next) => {
-  try {
-    const me = await User.findOne({
-      where: { id: req.user.id },
-      attributes: {
-        exclude: ['password'],
-      },
-    });
-    if (!me) {
-      res.status(401).send('로그인을 해주세요');
-    }
-    const followers = await me.getFollowers();
-    res.status(200).json(followers);
-  } catch (err) {
-    console.err(err);
-    next(err);
-  }
-});
-
-router.get('/followings', isSignedIn, async (req, res, next) => {
-  try {
-    const me = await User.findOne({
-      where: { id: req.user.id },
-      attributes: {
-        exclude: ['password'],
-      },
-    });
-    if (!me) {
-      res.status(401).send('로그인을 해주세요');
-    }
-    const followings = await me.getFollowings();
-    res.status(200).json(followings);
   } catch (err) {
     console.err(err);
     next(err);
